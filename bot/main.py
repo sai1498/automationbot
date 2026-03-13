@@ -14,10 +14,12 @@ import requests
 # Ensure project root is in the path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import signal
 from config.settings import Config
 from database.models import init_db
 from core.orchestrator import Orchestrator
 from bot.handlers import handle_message
+from queue.worker import task_worker
 
 # ─── Logging Setup ────────────────────────────────────────────
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
@@ -49,7 +51,17 @@ def main():
     # 3. Create orchestrator
     orchestrator = Orchestrator()
 
-    # 4. Start polling
+    # 4. Graceful Shutdown Handler
+    def signal_handler(sig, frame):
+        logger.info("🛑 Signal received. Shutting down gracefully...")
+        task_worker.shutdown(wait=True)
+        logger.info("👋 Bot stopped.")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    # 5. Start polling
     base_url = f"https://api.telegram.org/bot{Config.TELEGRAM_TOKEN}"
     offset = 0
 
