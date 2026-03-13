@@ -9,3 +9,7 @@ temp_processing/
 _agents/
 _agent/
 brain/
+data/
+logs/
+*.db
+generated_image_*
