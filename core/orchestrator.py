@@ -20,8 +20,8 @@ from inputs.link_scraper import LinkScraper
 from security.auth import is_user_allowed, sanitize_text_input
 from security.rate_limit import rate_limiter
 from database.models import get_session_factory
-from queue.tasks import Task, TaskType
-from queue.worker import task_worker
+from task_queue.tasks import Task, TaskType
+from task_queue.worker import task_worker
 
 logger = logging.getLogger(__name__)
 
@@ -169,8 +169,9 @@ class Orchestrator:
                     self.send_preview_with_controls(chat_id)
                     logger.info(f"🏁 Ready for review (job #{res.get('job_id')})")
                 else:
+                    safe_error = str(task.error).replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
                     self.tg_client.send_to_publisher(
-                        f"❌ *Processing failed:* {task.error}",
+                        f"❌ *Processing failed:*\n{safe_error}",
                         publisher_token=self.listener_token, chat_id=chat_id
                     )
 
@@ -186,8 +187,9 @@ class Orchestrator:
 
         except Exception as e:
             logger.error(f"Failed to submit task: {e}", exc_info=True)
+            safe_e = str(e).replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
             self.tg_client.send_to_publisher(
-                f"❌ *Queue Error:* {e}",
+                f"❌ *Queue Error:*\n{safe_e}",
                 publisher_token=self.listener_token, chat_id=chat_id
             )
 

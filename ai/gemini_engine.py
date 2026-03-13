@@ -46,41 +46,15 @@ class GeminiEngine:
         return result
 
     def _build_prompt(self, news_input: str, is_community_only: bool) -> str:
-        """Build optimized prompt with SYSTEM/CONTEXT/TASK/FORMAT structure."""
+        """Build optimized prompt using PromptBuilder templates."""
+        from ai.prompt_builder import SYSTEM_PROMPT, MAIN_TASK_PROMPT, COMMUNITY_ONLY_PROMPT
 
-        # SYSTEM
-        system = "You are a geopolitical financial content engine."
-
-        # TASK
         if is_community_only:
-            task = (
-                "[STRICT MODE: COMMUNITY ONLY] "
-                "Only generate 'community_post' and 'trending_hashtags'. "
-                "Leave all other fields as empty strings or empty lists."
-            )
+            task = COMMUNITY_ONLY_PROMPT.format(news_input=news_input)
         else:
-            task = (
-                "Convert the input news into these formats:\n"
-                "1. LinkedIn post: professional, analytical, institutional tone.\n"
-                "2. Instagram caption: short, emotional, hook-based, trader mindset.\n"
-                "3. Community post: friendly, discussion-driven.\n"
-                "4. 5-Slide Carousel: Enforce < 15 words per slide.\n"
-                "5. 5 Cinematic Image Prompts.\n"
-                "6. Trending Hashtags: 5-10 contextually relevant, high-traffic hashtags."
+            task = MAIN_TASK_PROMPT.format(
+                is_community_only="false",
+                news_input=news_input
             )
 
-        # OUTPUT FORMAT
-        output_format = (
-            "Output a JSON object with this structure:\n"
-            "{\n"
-            f'  "is_community_only": {str(is_community_only).lower()},\n'
-            '  "linkedin_post": "...",\n'
-            '  "instagram_caption": "...",\n'
-            '  "community_post": "...",\n'
-            '  "carousel_slides": ["slide 1", ...],\n'
-            '  "image_prompts": ["prompt 1", ...],\n'
-            '  "trending_hashtags": ["#hashtag1", ...]\n'
-            "}"
-        )
-
-        return f"{system}\n\n{task}\n\n{output_format}\n\nINPUT NEWS:\n{news_input}"
+        return f"{SYSTEM_PROMPT}\n\n{task}"
