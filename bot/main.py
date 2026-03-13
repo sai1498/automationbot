@@ -19,7 +19,7 @@ from config.settings import Config
 from database.models import init_db
 from core.orchestrator import Orchestrator
 from bot.handlers import handle_message
-from queue.worker import task_worker
+from task_queue.worker import task_worker
 
 # ─── Logging Setup ────────────────────────────────────────────
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")

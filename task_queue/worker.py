@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 from queue import Queue as PyQueue
 
 from config.settings import Config
-from queue.tasks import Task
+from task_queue.tasks import Task
 
 logger = logging.getLogger(__name__)
 

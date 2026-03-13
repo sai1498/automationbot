@@ -20,8 +20,8 @@ from inputs.link_scraper import LinkScraper
 from security.auth import is_user_allowed, sanitize_text_input
 from security.rate_limit import rate_limiter
 from database.models import get_session_factory
-from queue.tasks import Task, TaskType
-from queue.worker import task_worker
+from task_queue.tasks import Task, TaskType
+from task_queue.worker import task_worker
 
 logger = logging.getLogger(__name__)
 
